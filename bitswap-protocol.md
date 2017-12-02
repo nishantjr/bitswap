@@ -5,11 +5,25 @@ mod BITSWAP-PROTOCOL is
 
     sort NodeId .
     subsort Qid < NodeId .
-
     sort Node NodeSet .
     subsort Node < NodeSet .
+
     op  < name: _ , want-list: _ , have-list: _ >
       : NodeId QidSet QidSet -> Node  [ctor].
+    op .NodeSet : -> NodeSet .
+    op err      : -> NodeSet .
+    op _ _ : NodeSet NodeSet -> NodeSet [ctor assoc comm id: .NodeSet ] .
+
+    vars A B : NodeId .
+    vars N M T T' : Nat .
+    vars P Q R S  : QidSet .
+    eq < name: A , want-list: P , have-list: Q >
+       < name: A , want-list: P , have-list: Q >
+     = < name: A , want-list: P , have-list: Q > .
+    eq < name: A , want-list: P , have-list: Q >
+       < name: A , want-list: R , have-list: S >
+     = err [owise] .
+
 
     sort Ledger .
     op { owner: _
@@ -38,17 +52,27 @@ mod BITSWAP-PROTOCOL is
     op _ _
      : NodeSet ChannelSet -> Topology .
 
-    vars A B : NodeId .
-    vars N M T T' : Nat .
+
 endm
 ```
 
-```{pipe='maude 2>&1 -no-banner bitswap-protocol'}
-rewrite
-  < name: 'a , want-list: M:QidSet, have-list: N:QidSet >
-  [ 'b -> 'a | open({ owner: 'b     , partner: 'a
-                    , bytes-sent: 4 , bytes-received: 5
-                    , timestamp: 0
-                    }) ]
-  .
-```
+Basic tests for `NodeSet`s:
+
+-   Idempotency:
+
+    ``` {pipe="maude 2>&1 -no-banner bitswap-protocol"}
+    rewrite
+        < name: 'a , want-list: M:QidSet, have-list: N:QidSet >
+        < name: 'a , want-list: M:QidSet, have-list: N:QidSet >
+     == < name: 'a , want-list: M:QidSet, have-list: N:QidSet > .
+    ```
+
+-   Detecting duplicate nodes:
+
+    ```{pipe='maude 2>&1 -no-banner bitswap-protocol'}
+    rewrite
+        < name: 'a , want-list: 'a , have-list: N:QidSet >
+        < name: 'a , want-list: 'b , have-list: N:QidSet >
+     == err .
+     ```
+   ```
