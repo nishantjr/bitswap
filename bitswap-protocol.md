@@ -5,14 +5,10 @@ mod BITSWAP-PROTOCOL is
 
     sort NodeId .
     subsort Qid < NodeId .
-    sort Node NodeSet .
-    subsort Node < NodeSet .
+    sort Node  .
 
     op  < name: _ , want-list: _ , have-list: _ >
       : NodeId QidSet QidSet -> Node  [ctor].
-    op .NodeSet : -> NodeSet .
-    op err      : -> NodeSet .
-    op _ _ : NodeSet NodeSet -> NodeSet [ctor assoc comm id: .NodeSet ] .
 
     vars A B : NodeId .
     vars N M T T' : Nat .
@@ -43,14 +39,15 @@ mod BITSWAP-PROTOCOL is
     op .MsgList : -> MsgList [ctor] .
     op _ _ : MsgList MsgList -> MsgList [ctor id: .MsgList assoc] .
 
-    sort Channel ChannelSet .
-    subsort Channel < ChannelSet .
+    sort Channel Topology .
+    subsort Channel Node < Topology .
     op [ _ -> _ | _ ]
      : NodeId NodeId  MsgList -> Channel .
 
     sort Topology .
-    op _ _
-     : NodeSet ChannelSet -> Topology .
+    op empty :                   -> Topology .
+    op err   :                   -> Topology .
+    op _ _   : Topology Topology -> Topology [ctor assoc comm id: empty ] .
 
     rl  < name: A , want-list: P, have-list: Q >
         [ B -> A | open({ owner: B      , partner: A
@@ -62,7 +59,7 @@ mod BITSWAP-PROTOCOL is
 endm
 ```
 
-Basic tests for `NodeSet`s:
+Basic tests for `Topology`s:
 
 -   Idempotency:
 
