@@ -49,13 +49,16 @@ mod BITSWAP-PROTOCOL is
     op err   :                   -> Topology .
     op _ _   : Topology Topology -> Topology [ctor assoc comm id: empty ] .
 
+    vars ML : MsgList .
     rl  < name: A , want-list: P, have-list: Q >
         [ B -> A | open({ owner: B      , partner: A
                         , bytes-sent: N , bytes-received: M
                         , timestamp: T
-                        }) ]
-     => < name: A , want-list: P, have-list: Q >
-        [ B -> A | .MsgList ] .
+                        }) ML ]
+     => < name: A
+        , want-list: P
+        , have-list: Q >
+        [ B -> A | ML ] .
 endm
 ```
 
@@ -87,6 +90,7 @@ Basic tests for `Topology`s:
         [ 'b -> 'a | open({ owner: 'b     , partner: 'a
                           , bytes-sent: 3 , bytes-received: 5
                           , timestamp: 0
-                          }) ]
+                          }) ML:MsgList ]
     .
     ```
+
