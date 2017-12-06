@@ -67,7 +67,7 @@ Basic tests for `NodeSet`s:
 -   Idempotency:
 
     ``` {pipe="maude 2>&1 -no-banner bitswap-protocol"}
-    rewrite
+    reduce
         < name: 'a , want-list: M:QidSet, have-list: N:QidSet >
         < name: 'a , want-list: M:QidSet, have-list: N:QidSet >
      == < name: 'a , want-list: M:QidSet, have-list: N:QidSet > .
@@ -76,7 +76,7 @@ Basic tests for `NodeSet`s:
 -   Detecting duplicate nodes:
 
     ```{pipe='maude 2>&1 -no-banner bitswap-protocol'}
-    rewrite
+    reduce
         < name: 'a , want-list: 'a , have-list: N:QidSet >
         < name: 'a , want-list: 'b , have-list: N:QidSet >
      == err .
