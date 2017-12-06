@@ -58,8 +58,8 @@ mod BITSWAP-PROTOCOL is
                         , timestamp: T
                         }) ]
      => < name: A , want-list: P, have-list: Q >
-        [ B -> A | .MsgList ]
-    . endm
+        [ B -> A | .MsgList ] .
+endm
 ```
 
 Basic tests for `NodeSet`s:
@@ -84,7 +84,6 @@ Basic tests for `NodeSet`s:
 
 -  Check that the open message is received:
 
-    XXX `==` does not work when rewriting
     ```{pipe='maude 2>&1 -no-banner bitswap-protocol'}
     rewrite
         < name: 'a , want-list: ('p, 'q), have-list: ('x, 'y) >
@@ -92,7 +91,5 @@ Basic tests for `NodeSet`s:
                           , bytes-sent: 3 , bytes-received: 5
                           , timestamp: 0
                           }) ]
-     == < name: 'a , want-list: ('p, 'q), have-list: ('x, 'y) >
-        [ 'b -> 'a | .MsgList ]
     .
     ```
