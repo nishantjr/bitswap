@@ -136,6 +136,20 @@ mod BITSWAP-NAIVE is
         [ B -> A | ML ]
         [ A -> B | ML' block(X:NeQidSet) ]
     .
+
+    rl  < name: A , strategy: naive
+        , want-list: (X:NeQidSet, P)
+        , have-list: S >
+        [ B -> A | block((X:NeQidSet, R)) ML ]
+        [ A -> B | ML' ]
+     => < name: A
+        , strategy: naive
+        , want-list: P
+        , have-list: X:NeQidSet,S
+        >
+        [ B -> A | ML ]
+        [ A -> B | ML']
+    .
 endm
 ```
 
