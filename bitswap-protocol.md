@@ -42,9 +42,9 @@ We define messages:
 
 ```{pipe='tee -a bitswap-protocol.maude'}
     sort Msg .
-    op open : Ledger -> Msg  [ctor].
+    op open      : Ledger -> Msg  [ctor] .
+    op want-list : QidSet -> Msg  [ctor] .
 ```
-
 
 We assume out communication channels do *not* re-order messages:
 
@@ -93,8 +93,8 @@ mod BITSWAP-NAIVE is
     including BITSWAP-PROTOCOL .
     op naive : -> Strategy .
 
-    vars ML : MsgList .
-    vars A B : NodeId .
+    vars ML ML'   : MsgList .
+    vars A B      : NodeId .
     vars N M T T' : Nat .
     vars P Q R S  : QidSet .
     rl  < name: A , strategy: naive, want-list: P, have-list: Q >
@@ -102,12 +102,15 @@ mod BITSWAP-NAIVE is
                         , bytes-sent: N , bytes-received: M
                         , timestamp: T
                         }) ML ]
+        [ A -> B | ML' ]
      => < name: A
         , strategy: naive
         , want-list: P
         , have-list: Q
         >
-        [ B -> A | ML ] .
+        [ B -> A | ML ]
+        [ A -> B | ML' want-list(P) ]
+    .
 endm
 ```
 
@@ -136,10 +139,15 @@ Basic tests for `Topology`s:
     ```{pipe='maude 2>&1 -no-banner bitswap-protocol'}
     rewrite
         < name: 'a , strategy: naive, want-list: ('p, 'q), have-list: ('x, 'y) >
+        < name: 'b , strategy: naive, want-list: ('x, 'q), have-list: ('p, 'y) >
         [ 'b -> 'a | open({ owner: 'b     , partner: 'a
                           , bytes-sent: 3 , bytes-received: 5
                           , timestamp: 0
-                          }) ML:MsgList ]
+                          }) ]
+        [ 'a -> 'b | open({ owner: 'a     , partner: 'b
+                          , bytes-sent: 5 , bytes-received: 3
+                          , timestamp: 0
+                          }) ]
     .
     ```
 
