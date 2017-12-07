@@ -44,18 +44,28 @@ We define messages:
     sort Msg .
     op open      : Ledger -> Msg  [ctor] .
     op want-list : QidSet -> Msg  [ctor] .
+    op block     : Qid    -> Msg  [ctor] .
 ```
 
-We assume out communication channels do *not* re-order messages:
+Since we assume our communication channels do *not* re-order messages,
+we use lists to represent them. Unfortunately, the unification algorithm
+does not support `assoc` with `id`, we work around it:
 
 ```{pipe='tee -a bitswap-protocol.maude'}
     sort MsgList .
     subsort Msg < MsgList .
     op .MsgList : -> MsgList [ctor] .
-    op _ _ : MsgList MsgList -> MsgList [ctor id: .MsgList assoc] .
+    op _ _      : MsgList MsgList -> MsgList [ctor assoc] .
+    eq .MsgList .MsgList = .MsgList .
+    eq .MsgList X:Msg = X:Msg .MsgList .
+```
 
+A `Channel` transmits messages in one direction reliably:
+
+```{pipe='tee -a bitswap-protocol.maude'}
     sort Channel .
     op [ _ -> _ | _ ] : NodeId NodeId  MsgList -> Channel .
+
 ```
 
 `Topology`s are sets of `Node`s and `Channel`s between them:
@@ -143,11 +153,11 @@ Basic tests for `Topology`s:
         [ 'b -> 'a | open({ owner: 'b     , partner: 'a
                           , bytes-sent: 3 , bytes-received: 5
                           , timestamp: 0
-                          }) ]
+                          }) .MsgList ]
         [ 'a -> 'b | open({ owner: 'a     , partner: 'b
                           , bytes-sent: 5 , bytes-received: 3
                           , timestamp: 0
-                          }) ]
+                          }) .MsgList ]
     .
     ```
 
