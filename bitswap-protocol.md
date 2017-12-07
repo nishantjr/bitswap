@@ -107,6 +107,7 @@ mod BITSWAP-NAIVE is
     vars A B      : NodeId .
     vars N M T T' : Nat .
     vars P Q R S  : QidSet .
+
     rl  < name: A , strategy: naive, want-list: P, have-list: Q >
         [ B -> A | open({ owner: B      , partner: A
                         , bytes-sent: N , bytes-received: M
@@ -120,6 +121,20 @@ mod BITSWAP-NAIVE is
         >
         [ B -> A | ML ]
         [ A -> B | ML' want-list(P) ]
+    .
+
+    rl  < name: A , strategy: naive
+        , want-list: P
+        , have-list: (X:NeQidSet , S) >
+        [ B -> A | want-list((X:NeQidSet , R)) ML ]
+        [ A -> B | ML' ]
+     => < name: A
+        , strategy: naive
+        , want-list: P
+        , have-list: X:NeQidSet,S
+        >
+        [ B -> A | ML ]
+        [ A -> B | ML' block(X:NeQidSet) ]
     .
 endm
 ```
@@ -144,20 +159,22 @@ Basic tests for `Topology`s:
      == err .
      ```
 
--  Check that the open message is received:
+Let's watch what happens when we let the protocol play out:
 
-    ```{pipe='maude 2>&1 -no-banner bitswap-protocol'}
-    rewrite
-        < name: 'a , strategy: naive, want-list: ('p, 'q), have-list: ('x, 'y) >
-        < name: 'b , strategy: naive, want-list: ('x, 'q), have-list: ('p, 'y) >
-        [ 'b -> 'a | open({ owner: 'b     , partner: 'a
-                          , bytes-sent: 3 , bytes-received: 5
-                          , timestamp: 0
-                          }) .MsgList ]
-        [ 'a -> 'b | open({ owner: 'a     , partner: 'b
-                          , bytes-sent: 5 , bytes-received: 3
-                          , timestamp: 0
-                          }) .MsgList ]
-    .
-    ```
+```{pipe='maude 2>&1 -no-banner bitswap-protocol'}
+rewrite
+    < name: 'a , strategy: naive, want-list: ('p, 'q), have-list: ('x, 'y) >
+    < name: 'b , strategy: naive, want-list: ('x, 'q), have-list: ('p, 'y) >
+    [ 'b -> 'a | open({ owner: 'b     , partner: 'a
+                      , bytes-sent: 3 , bytes-received: 5
+                      , timestamp: 0
+                      })
+                      .MsgList ]
+    [ 'a -> 'b | open({ owner: 'a     , partner: 'b
+                      , bytes-sent: 5 , bytes-received: 3
+                      , timestamp: 0
+                      })
+                      .MsgList ]
+.
+```
 
