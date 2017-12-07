@@ -6,14 +6,20 @@ mod BITSWAP-PROTOCOL is
     protecting NAT .
 ```
 
-`Node`s are peers in the BitSwap network:
+`Node`s are peers in the BitSwap network, with their `Strategy`
+defining how they interact with their peers:
 
 ```{pipe='tee -a bitswap-protocol.maude'}
     sort NodeId .
+    sort Strategy .
     subsort Qid < NodeId .
     sort Node  .
-    op  < name: _ , want-list: _ , have-list: _ >
-      : NodeId QidSet QidSet -> Node  [ctor].
+    op  < name: _
+        , strategy: _
+        , want-list: _
+        , have-list: _
+        >
+      : NodeId Strategy QidSet QidSet -> Node  [ctor].
 ```
 
 The `Ledger` is used both as a record for keeping track
@@ -61,32 +67,43 @@ We assume out communication channels do *not* re-order messages:
     op err   :                   -> Topology .
     op _ _   : Topology Topology -> Topology [ctor assoc comm id: empty ] .
 
-    vars A B : NodeId .
-    vars N M T T' : Nat .
+    vars A : NodeId .
     vars P Q R S  : QidSet .
+    vars STRAT    : Strategy .
 ```
 
 A `Topology` may *not* have two nodes with the same name:
 
 ```{pipe='tee -a bitswap-protocol.maude'}
-    eq < name: A , want-list: P , have-list: Q >
-       < name: A , want-list: P , have-list: Q >
-     = < name: A , want-list: P , have-list: Q > .
-    eq < name: A , want-list: P , have-list: Q >
-       < name: A , want-list: R , have-list: S >
+    eq < name: A , strategy: STRAT, want-list: P , have-list: Q >
+       < name: A , strategy: STRAT, want-list: P , have-list: Q >
+     = < name: A , strategy: STRAT, want-list: P , have-list: Q > .
+    eq < name: A , strategy: STRAT, want-list: P , have-list: Q >
+       < name: A , strategy: STRAT, want-list: R , have-list: S >
      = err [owise] .
+endm
+
 ```
 
-`Nodes` accept the `open` message:
+We implement the `naive` strategy, where `Node`s don't keep
+track of `Ledger`s and send data to anyone who requests it:
 
 ```{pipe='tee -a bitswap-protocol.maude'}
+mod BITSWAP-NAIVE is
+    including BITSWAP-PROTOCOL .
+    op naive : -> Strategy .
+
     vars ML : MsgList .
-    rl  < name: A , want-list: P, have-list: Q >
+    vars A B : NodeId .
+    vars N M T T' : Nat .
+    vars P Q R S  : QidSet .
+    rl  < name: A , strategy: naive, want-list: P, have-list: Q >
         [ B -> A | open({ owner: B      , partner: A
                         , bytes-sent: N , bytes-received: M
                         , timestamp: T
                         }) ML ]
      => < name: A
+        , strategy: naive
         , want-list: P
         , have-list: Q
         >
@@ -100,17 +117,17 @@ Basic tests for `Topology`s:
 
     ``` {pipe="maude 2>&1 -no-banner bitswap-protocol"}
     reduce
-        < name: 'a , want-list: M:QidSet, have-list: N:QidSet >
-        < name: 'a , want-list: M:QidSet, have-list: N:QidSet >
-     == < name: 'a , want-list: M:QidSet, have-list: N:QidSet > .
+        < name: 'a , strategy: S:Strategy, want-list: M:QidSet, have-list: N:QidSet >
+        < name: 'a , strategy: S:Strategy, want-list: M:QidSet, have-list: N:QidSet >
+     == < name: 'a , strategy: S:Strategy, want-list: M:QidSet, have-list: N:QidSet > .
     ```
 
 -   Detecting duplicate nodes:
 
     ```{pipe='maude 2>&1 -no-banner bitswap-protocol'}
     reduce
-        < name: 'a , want-list: 'a , have-list: N:QidSet >
-        < name: 'a , want-list: 'b , have-list: N:QidSet >
+        < name: 'a , strategy: S:Strategy, want-list: 'a , have-list: N:QidSet >
+        < name: 'a , strategy: S:Strategy, want-list: 'b , have-list: N:QidSet >
      == err .
      ```
 
@@ -118,7 +135,7 @@ Basic tests for `Topology`s:
 
     ```{pipe='maude 2>&1 -no-banner bitswap-protocol'}
     rewrite
-        < name: 'a , want-list: ('p, 'q), have-list: ('x, 'y) >
+        < name: 'a , strategy: naive, want-list: ('p, 'q), have-list: ('x, 'y) >
         [ 'b -> 'a | open({ owner: 'b     , partner: 'a
                           , bytes-sent: 3 , bytes-received: 5
                           , timestamp: 0
