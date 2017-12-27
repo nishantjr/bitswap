@@ -60,19 +60,19 @@ does not support `assoc` with `id`, we work around it:
     eq .MsgList X:Msg = X:Msg .MsgList .
 ```
 
-A `Channel` transmits messages in one direction reliably:
+A `Buffer` represents buffers in hosts, or in the network -- anywhere where bandwidth is limited:
 
 ```{pipe='tee -a bitswap-protocol.maude'}
-    sort Channel .
-    op [ _ -> _ | _ ] : NodeId NodeId  MsgList -> Channel .
+    sort Buffer .
+    op [ _ -> _ | _ ] : NodeId NodeId  MsgList -> Buffer .
 
 ```
 
-`Topology`s are sets of `Node`s and `Channel`s between them:
+`Topology`s are sets of `Node`s and `Buffer`s between them:
 
 ```{pipe='tee -a bitswap-protocol.maude'}
     sort Topology .
-    subsort Channel Node < Topology .
+    subsort Buffer Node < Topology .
     op empty :                   -> Topology .
     op err   :                   -> Topology .
     op _ _   : Topology Topology -> Topology [ctor assoc comm id: empty ] .
