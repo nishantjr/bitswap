@@ -50,7 +50,7 @@ defining how they interact with their peers:
 ```{pipe='tee -a bitswap-protocol.maude'}
 fmod BITSWAP-NODE is
     protecting BITSWAP-BUFFER .
-    protecting LIST{Buffer} * (sort List{Buffer} to BufferList ) .
+    protecting SET{Buffer} * (sort Set{Buffer} to BufferSet ) .
 
     sort Strategy .
     subsort Qid < NodeId .
@@ -61,15 +61,14 @@ fmod BITSWAP-NODE is
         , have-list: _
         , conns: _
         >
-      : NodeId Strategy BlockSet BlockSet BufferList -> Node  [ctor] .
-
+      : NodeId Strategy BlockSet BlockSet BufferSet -> Node  [ctor] .
 ```
 
 ```{pipe='tee -a bitswap-protocol.maude'}
+
 endfm
 
 ```
-
 
 `Topology`s are an AC soup of `Node`s:
 
@@ -85,8 +84,7 @@ fmod BITSWAP-TOPOLOGY is
     vars A : NodeId .
     vars P Q R S  : QidSet .
     vars STRAT    : Strategy .
-    vars BL BL'   : BufferList .
-
+    vars BL BL'   : BufferSet .
 ```
 
 A `Topology` may *not* have two nodes with the same name:
@@ -156,14 +154,14 @@ mod BITSWAP-NAIVE is
                    , bytes-sent: N , bytes-received: M
                    , timestamp: T
                    }) ML ]
-                 [ A -> B | ML' ]
+               , [ A -> B | ML' ]
         >
      => < name: A
         , strategy: naive
         , want-list: P
         , have-list: Q
         , conns: [ B -> A | ML ]
-                 [ A -> B | ML' want-list(P) ]
+               , [ A -> B | ML' want-list(P) ]
         >
     .
 
@@ -171,14 +169,14 @@ mod BITSWAP-NAIVE is
         , want-list: P
         , have-list: (X:NeQidSet , S)
         , conns: [ B -> A | want-list((X:NeQidSet , R)) ML ]
-                 [ A -> B | ML' ]
+               , [ A -> B | ML' ]
         >
      => < name: A
         , strategy: naive
         , want-list: P
         , have-list: X:NeQidSet,S
         , conns: [ B -> A | ML ]
-                 [ A -> B | ML' block(X:NeQidSet) ]
+               , [ A -> B | ML' block(X:NeQidSet) ]
         >
     .
 
@@ -186,14 +184,14 @@ mod BITSWAP-NAIVE is
         , want-list: (X:NeQidSet, P)
         , have-list: S
         , conns:  [ B -> A | block((X:NeQidSet, R)) ML ]
-                  [ A -> B | ML' ]
+               ,  [ A -> B | ML' ]
         >
      => < name: A
         , strategy: naive
         , want-list: P
         , have-list: X:NeQidSet,S
         , conns: [ B -> A | ML ]
-                 [ A -> B | ML']
+               , [ A -> B | ML']
         >
     .
 endm
@@ -223,7 +221,12 @@ Let's watch what happens when we let the protocol play out:
 
 ```{pipe='maude 2>&1 -no-banner bitswap-protocol'}
 rewrite
-    < name: 'a , strategy: naive, want-list: ('p, 'q), have-list: ('x, 'y), conns: nil >
-    < name: 'b , strategy: naive, want-list: ('x, 'q), have-list: ('p, 'y), conns: nil >
+    < name: 'a , strategy: naive, want-list: ('p, 'q), have-list: ('x, 'y), conns: empty >
+    < name: 'b , strategy: naive, want-list: ('x, 'q), have-list: ('p, 'y), conns: empty >
 .
+```
+
+\pagebreak
+
+```{pipe='cat bitswap-protocol.maude' .numberLines}
 ```
