@@ -1,3 +1,8 @@
+---
+title: Bitswap Protocol
+---
+
+
 ```{pipe='tee -a bitswap-protocol.maude'}
 fmod BITSWAP-BUFFER is
     protecting QID-SET .
