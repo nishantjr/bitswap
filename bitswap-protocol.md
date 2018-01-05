@@ -284,31 +284,7 @@ Basic tests for `Topology`s:
      == err .
     ```
 
--   ```{pipe='maude 2>&1 -no-banner bitswap-protocol  | sed "s/</\n    </g" '}
-    unify
-       < name: A,  strategy: STRAT , want-list: P ,       have-list: Q ,       conns: [ A -> B   | MSG ML  ],  BL  >
-    =? < name: 'a, strategy: naive,  want-list: ('p, 'q) ,have-list: ('x, 'y) ,conns: (['a -> 'b | open({owner: 'a,partner: 'b,bytes-sent: 5, bytes-received: 3,timestamp: 0}) .MsgList], ['b -> 'a | .MsgList]) >
-       .
-    unify
-       < name: A,  strategy: STRAT , want-list: P ,    have-list: Q ,    conns: [ A -> B  | MSG ML  ],  BL  >
-       < name: B,  strategy: STRAT', want-list: R ,    have-list: S ,    conns: [ A -> B  | ML'     ],  BL' >
-    =? < name: 'a, strategy: naive,  want-list: 'p, 'q,have-list: 'x, 'y,conns: ['a -> 'b | open({owner: 'a,partner: 'b,bytes-sent: 5, bytes-received: 3,timestamp: 0}) .MsgList ], ['b -> 'a | .MsgList] >
-       < name: 'b, strategy: naive,  want-list: 'q, 'x,have-list: 'p, 'y,conns: ['a -> 'b | .MsgList], ['b -> 'a | open({owner: 'b,partner: 'a,bytes-sent: 3, bytes-received: 5,timestamp: 0}) .MsgList] >
-       .
-    unify < name: A , strategy: naive
-        , want-list: P
-        , have-list: (X:Qid , S)
-        , conns: [ B -> A | want-list((X:Qid , R)) ML ]
-               , [ A -> B | ML' ]
-        >
-    =? < name: 'b,
-    strategy: naive,want-list: 'q, 'x,have-list: 'p, 'y,conns: ['a -> 'b |
-    want-list(('p, 'q)) block('x) .MsgList], ['b -> 'a | .MsgList] >
-    .
-    ```
-
 Let's watch what happens when we let the protocol play out:
-
 
 ```{pipe="maude 2>&1 -no-banner bitswap-protocol | sed 's/</\n    </g'"}
 rewrite
