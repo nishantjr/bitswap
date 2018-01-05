@@ -306,7 +306,7 @@ Let's watch what happens when we let the protocol play out:
 
 
 ```{pipe="maude 2>&1 -no-banner bitswap-protocol | sed 's/</\n    </g'"}
-rewrite [30]
+rewrite
     < name: 'a , strategy: naive, want-list: ('p, 'q), have-list: ('x, 'y)
     , conns:  [ 'a -> 'b | open({ owner: 'a     , partner: 'b
                                 , bytes-sent: 5 , bytes-received: 3
