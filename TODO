@@ -1,0 +1,15 @@
+- Implement basic mechanics of protocol and naive stratergy
+- Implement a "clock"
+
+  ```
+  T1:Topology <~ #tick => #satisfyWants <~ #allocateBandwidth <~ T1:Topology <~ #tick
+  ```
+
+- Implment selfish strategy
+- Implment tit-for-tat strategy
+
+- Properties to verify:
+  * Do all co-operating nodes get what they want?  -- Should be a simple LTL or Reachability clause.
+  * Are "selfish" nodes punished?                  -- What does punished mean? Is punishing them important? Or
+                                                      do we just want the network not to be affected too much
+                                                      by them?
