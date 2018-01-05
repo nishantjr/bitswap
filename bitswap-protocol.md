@@ -196,6 +196,7 @@ track of `Ledger`s and send data to anyone who requests it:
                    , timestamp: T
                    }) ML ]
                , [ A -> B | ML' ]
+               , BL
         >
      => < name: A
         , strategy: naive
@@ -203,6 +204,7 @@ track of `Ledger`s and send data to anyone who requests it:
         , have-list: Q
         , conns: [ B -> A | ML ]
                , [ A -> B | ML' want-list(P) ]
+               , BL
         >
     .
 
@@ -211,6 +213,7 @@ track of `Ledger`s and send data to anyone who requests it:
         , have-list: (X:Qid , S)
         , conns: [ B -> A | want-list((X:Qid , R)) ML ]
                , [ A -> B | ML' ]
+               , BL
         >
      => < name: A
         , strategy: naive
@@ -218,17 +221,20 @@ track of `Ledger`s and send data to anyone who requests it:
         , have-list: X:Qid,S
         , conns: [ B -> A | ML ]
                , [ A -> B | ML' block(X:Qid) ]
+               , BL
         >
     .
    crl  < name: A , strategy: naive
         , want-list: P, have-list: S
         , conns: [ B -> A | want-list(R) ML ]
                , [ A -> B | ML' ]
+               , BL
         >
      => < name: A , strategy: naive
         , want-list: P, have-list: S
         , conns: [ B -> A | ML ]
                , [ A -> B | ML']
+               , BL
         >
     if intersection(R, S) == empty
     .
@@ -238,6 +244,7 @@ track of `Ledger`s and send data to anyone who requests it:
         , have-list: S
         , conns:  [ B -> A | block((X:NeQidSet, R)) ML ]
                ,  [ A -> B | ML' ]
+               , BL
         >
      => < name: A
         , strategy: naive
@@ -245,6 +252,7 @@ track of `Ledger`s and send data to anyone who requests it:
         , have-list: X:NeQidSet,S
         , conns: [ B -> A | ML ]
                , [ A -> B | ML']
+               , BL
         >
     .
 
